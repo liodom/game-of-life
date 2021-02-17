@@ -1,0 +1,23 @@
+.App {
+  text-align: center;
+}
+
+.cell {
+  display: inline-block;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  color: green;
+  font-size: 3rem;
+  border: solid gainsboro 0.01em;
+  margin: 0.05em;
+  border-radius: 10px;
+}
+.alive {
+  color: green;
+}
+.dead {
+  color: red;
+  background-color: gainsboro;
+}
