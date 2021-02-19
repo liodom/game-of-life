@@ -1,0 +1,68 @@
+
+    checkSingleCell = (cellPosition, grid) => {
+      const testGrid = [...grid];
+      const rowLength = testGrid.length;
+      const columnLength = testGrid.length;
+
+      const liveCellNeighbours = 0;
+      // check live cell
+      if (testGrid[i][j] === ALIVE) {
+        if (i - 1 >= 0 && j - 1 >= 0 && testGrid[i - 1][j - 1] === ALIVE) {
+          liveCellNeighbours++;
+        }
+        if (j - 1 >= 0 && testGrid[i][j - 1] === ALIVE) {
+          liveCellNeighbours++;
+        }
+        if (
+          i + 1 < rowLength &&
+          j - 1 >= 0 &&
+          testGrid[i + 1][j - 1] === ALIVE
+        ) {
+          liveCellNeighbours++;
+        }
+        if (i + 1 < rowLength && testGrid[i + 1][j] === ALIVE) {
+          liveCellNeighbours++;
+        }
+        if (
+          i + 1 < rowLength &&
+          j + 1 < columnLength &&
+          testGrid[i + 1][j + 1] === ALIVE
+        ) {
+          liveCellNeighbours++;
+        }
+        if (j + 1 < columnLength && testGrid[i][j + 1] === ALIVE) {
+          liveCellNeighbours++;
+        }
+        if (
+          i - 1 >= 0 &&
+          j + 1 < columnLength &&
+          testGrid[i - 1][j + 1] === ALIVE
+        ) {
+          liveCellNeighbours++;
+        }
+        if (i - 1 >= 0 && testGrid[i - 1][j] === ALIVE) {
+          liveCellNeighbours++;
+        }
+
+        // if (liveCellNeighbours > 0 && liveCellNeighbours < 2) {
+        if (liveCellNeighbours < 2) {
+          newGrid[i][j] = DEAD;
+
+          //   newGrid[i][j] = DEAD;
+        }
+        if (liveCellNeighbours === 2 || liveCellNeighbours === 3) {
+          newGrid[i][j] = ALIVE;
+        }
+        if (liveCellNeighbours > 3) {
+          newGrid[i][j] = DEAD;
+        }
+
+        // set the new Life into the state
+        const newLife = {
+          ...life,
+          grid: newGrid,
+          generation: life.generation + 1,
+        };
+        setLife(newLife);
+      }
+    };

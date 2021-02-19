@@ -1,13 +1,19 @@
 import { ALIVE_CELL, DEAD_CELL } from "./cellEntities.js";
 import { ALIVE, DEAD } from "./status";
+import React from "react";
 
-const Cell = ({ status }) => {
+const Cell = ({ status, children }) => {
   return status === ALIVE ? (
-    <div className="cell alive">{ALIVE_CELL}</div>
+    <React.Fragment>
+      {/* <div className="cell alive">{ALIVE_CELL}</div> */}
+      <div className="cell alive" dangerouslySetInnerHTML={ALIVE_CELL()} />
+      <div className="text-description">{children}</div>
+    </React.Fragment>
   ) : (
-    // <div className="cell dead">{DEAD}</div>
-    // <div className="cell dead">&#8226;</div>
-    <div className="cell dead" dangerouslySetInnerHTML={DEAD_CELL()} />
+    <React.Fragment>
+      <div className="cell dead" dangerouslySetInnerHTML={DEAD_CELL()} />
+      <div className="text-description">{children}</div>
+    </React.Fragment>
   );
 };
 

@@ -1,7 +1,7 @@
 body {
-  background-color: rgb(26, 148, 67);
+  background-color: #98ff98;
 }
-.App {
+.game-container {
   text-align: center;
 }
 
@@ -44,7 +44,7 @@ body {
 }
 
 .cell {
-  display: inline-block;
+  display: flex;
   justify-content: center;
   align-items: center;
   max-width: 130px;
@@ -82,3 +82,41 @@ body {
 
   box-shadow: 3px 3px 20px 8px rgb(240, 240, 239);
 }
+
+.left {
+  background-color: blueviolet;
+}
+.right {
+  background-color: cyan;
+}
+
+.text-description {
+  display: flex;
+  justify-content: center;
+}
+
+.cell-legend {
+  max-width: 30vw;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+.legend {
+  width: 40vw;
+  margin: 0 auto;
+  background-color: darkslategrey;
+  display: flex;
+  justify-content: space-between;
+}
+/* .legend {
+  display: flex;
+  width: 60vw;
+  background-color: darkgoldenrod;
+} */
+
+/* .cell {
+  display: inline-block;
+}
+.text-description {
+  display: inline-block;
+} */
