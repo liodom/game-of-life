@@ -4,6 +4,8 @@ import Cell from "./Cell";
 import { ALIVE, DEAD } from "./status";
 // import { initialLife as lifeSeed } from "./initialLife.js";
 import raw from "raw.macro";
+import styled from "styled-components";
+import __ from "lodash";
 
 function App() {
   // const initialLife = { ...lifeSeed };
@@ -24,6 +26,8 @@ function App() {
       [".", "*", ".", "*", ".", ".", "*", "*"],
       [".", "*", ".", "*", ".", ".", "*", "."],
     ],
+    isStartButtonActive: true,
+    isResultReady: false,
   };
 
   const [life, setLife] = useState(initialLife);
@@ -57,28 +61,58 @@ function App() {
 
     let tempStatus = undefined;
 
-    let output = [];
+    let outputGrid = [];
 
-    for (let i = 0; i < rowLength; i++) {
-      let tempRow = [];
-      for (let j = 0; j < columnLength; j++) {
-        console.log("\n\n[i, j] => ", i, j);
+    console.log("isButtonActive => ", life.isStartButtonActive);
+    // is Button active ?
+    if (life.isStartButtonActive) {
+      for (let i = 0; i < rowLength; i++) {
+        let tempRow = [];
+        for (let j = 0; j < columnLength; j++) {
+          console.log("\n\n[i, j] => ", i, j);
 
-        tempStatus = matrixProcessor(newGrid, i, j);
-        console.log("[i, j] UPDATED => ", matrixProcessor(newGrid, i, j));
-        tempRow.push(tempStatus);
+          tempStatus = matrixProcessor(newGrid, i, j);
+
+          console.log("tempStatus => ", tempStatus);
+
+          console.log("[i, j] UPDATED => ", matrixProcessor(newGrid, i, j));
+
+          tempRow.push(tempStatus);
+        }
+        outputGrid.push(tempRow);
       }
-      output.push(tempRow);
+
+      console.log("newGrid UPDATED => ", outputGrid);
+
+      const newLife = {
+        ...life,
+        grid: outputGrid,
+        generation: life.generation + 1,
+      };
+      setLife(newLife);
+
+      // if no cellStatus, disactivate Start Button
+      let comparisonCounter = 0;
+      for (let n = 0; n < rowLength; n++) {
+        let rowCompareCounter = 0;
+        for (let m = 0; m < columnLength; m++) {
+          if (grid[n][m] === outputGrid[n][m]) {
+            rowCompareCounter++;
+          }
+        }
+        if (rowCompareCounter === columnLength) {
+          comparisonCounter++;
+        }
+      }
+
+      if (comparisonCounter === rowLength) {
+        setLife({
+          ...life,
+          isStartButtonActive: false,
+          isResultReady: true,
+        });
+      }
     }
-
-    console.log("newGrid UPDATED => ", output);
-
-    const newLife = {
-      ...life,
-      grid: output,
-      generation: life.generation + 1,
-    };
-    setLife(newLife);
   };
 
   const resetLife = () => {
@@ -357,38 +391,71 @@ function App() {
     return cellStatus;
   };
 
-  console.log("life newMatrix => ", life.grid);
+  // -------------------- Classes -----------------
+  const result = life.isResultReady ? "result" : "";
+  const faded = life.isResultReady ? "faded" : "";
+
+  // ----------- Styled Components ------------------
+  const ButtonStyled = styled.button`
+    background-color: rgb(248, 255, 206);
+    box-shadow: 2px 10px 10px 0px grey;
+    padding: 10px 40px;
+    margin: 30px 20px;
+    font-size: 20px;
+    border:none;
+    border-radius: 15px;
+    outline: none;
+    cursor: ${(props) => (props.pointer ? "pointer" : "")}
+    color: ${(props) => (props.start ? "green" : "red")};
+    ${(props) =>
+      props.shouldHover
+        ? "&:hover {background-color: #0071c5; color: white }"
+        : "white"}
+    }
+    ${(props) =>
+      props.cliccable
+        ? "&:active {box-shadow: 1px 1px 10px 0px grey; transform: translateY(4px); transition-duration: 200; color: white}"
+        : ""}
+    ${(props) => (props.resetColor ? "{background: orange; color: white}" : "")}
+    ${(props) => (props.show ? "{background: gray; }" : "")}
+  `;
+  const DisplayStyled = styled.section`
+    margin-bottom: 30px;
+  `;
 
   return (
     <div className="App ">
       <div className="fluid">
         <div className="game-container">
-          {" "}
-          <div>
+          <div className={`generation ${result}`}>
             Generation: <code>{life.generation}</code>
           </div>
-          <span>{life.grid.length} &nbsp; &nbsp;</span>
-          <span>{life.grid[0].length}</span>
-          {displayGrid()}
-          <br />
-          <br />
-          <br />
-          <hr />
-          <br />
-          <br />
-          <button onClick={() => startLife()}>Start</button>
-          <button onClick={() => resetLife()}>Reset</button>
+          <div className="grid-size">
+            <div className="row-length">{life.grid.length}</div>
+            <div className="column-length">{life.grid[0].length}</div>
+          </div>
+          <DisplayStyled>{displayGrid()}</DisplayStyled>
+          <div className="buttons-container">
+            <ButtonStyled
+              onClick={() => startLife()}
+              start
+              shouldHover
+              cliccable
+              pointer
+            >
+              Start Life
+            </ButtonStyled>
+            <ButtonStyled
+              onClick={() => resetLife()}
+              cliccable
+              reset
+              resetColor
+            >
+              Reset Life
+            </ButtonStyled>
+          </div>
         </div>
       </div>
-      {/* <div className="legend">
-        <div className="cell-legend left">
-          <Cell status={ALIVE}>LIVE CELL</Cell>
-        </div>
-        <br />
-        <div className="cell-legend right">
-          <Cell status={DEAD}>DEAD CELL </Cell>
-        </div>
-      </div> */}
     </div>
   );
 }

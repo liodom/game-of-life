@@ -5,7 +5,6 @@ import React from "react";
 const Cell = ({ status, children }) => {
   return status === ALIVE ? (
     <React.Fragment>
-      {/* <div className="cell alive">{ALIVE_CELL}</div> */}
       <div className="cell alive" dangerouslySetInnerHTML={ALIVE_CELL()} />
       <div className="text-description">{children}</div>
     </React.Fragment>
