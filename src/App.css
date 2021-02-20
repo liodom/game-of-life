@@ -1,5 +1,6 @@
 body {
-  background-color: #98ff98;
+  /* background-color: #98ff98; */
+  background-color: rgba(29, 29, 218, 0.61);
 }
 .game-container {
   text-align: center;
@@ -56,18 +57,6 @@ body {
   margin: 0.05em;
   border-radius: 10px;
 }
-/* .dead {
-  background-color: rgb(248, 255, 206);
-  color: red;
-  box-shadow: 3px 3px 20px 2px rgb(122, 114, 10);
-}
-.alive {
-  background-color: rgba(0, 0, 255, 0.555);
-  color: white;
-
-
-  box-shadow: 3px 3px 20px 8px rgb(240, 240, 239);
-} */
 
 .dead {
   background-color: rgba(208, 208, 255, 0.555);
@@ -108,15 +97,3 @@ body {
   display: flex;
   justify-content: space-between;
 }
-/* .legend {
-  display: flex;
-  width: 60vw;
-  background-color: darkgoldenrod;
-} */
-
-/* .cell {
-  display: inline-block;
-}
-.text-description {
-  display: inline-block;
-} */

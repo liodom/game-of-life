@@ -2,15 +2,16 @@ import "./App.css";
 import { useState } from "react";
 import Cell from "./Cell";
 import { ALIVE, DEAD } from "./status";
-// import { initialLife } from "./initialLife.js";
+// import { initialLife as lifeSeed } from "./initialLife.js";
 import raw from "raw.macro";
 
 function App() {
+  // const initialLife = { ...lifeSeed };
   // const initialLife = {
   //   generation: 3,
   //   grid: [
   //     [".", ".", ".", ".", ".", ".", ".", "."],
-  //     [".", ".", "*", ".", "*", ".", ".", "."],
+  //     [".", ".", ".", ".", "*", ".", ".", "."],
   //     [".", ".", ".", "*", "*", ".", ".", "."],
   //     [".", ".", ".", ".", ".", ".", ".", "."],
   //   ],
@@ -31,6 +32,7 @@ function App() {
     const content = raw("./gameOfLifeConfig.txt");
     // console.log("raw content => ", content);
   };
+
   const displayGrid = () => {
     return life.grid.map((row) => (
       // row
@@ -47,100 +49,79 @@ function App() {
   };
 
   const startLife = () => {
-    renderGrid(); // to delete ???
     printRawData();
-  };
-  const resetLife = () => {
-    setLife(initialLife);
-  };
-
-  // const checkCellNeighbours = (cellPosition, grid) => {
-  //   const [i, j] = cellPosition;
-  //   const testGrid = [...grid];
-  //   const rowLength = testGrid.length;
-  //   const columnLength = testGrid[0].length;
-  //   let cellFutureStatus = DEAD;
-
-  //   let liveCellNeighbours = 0;
-
-  //   for (let x = i - 1; x <= i + 1; x++) {
-  //     if (x >= 0 && x < rowLength) {
-  //       for (let z = j - 1; z <= j + 1; z++) {
-  //         if (z >= 0 && z < columnLength) {
-  //           if (x === i && z === j) {
-  //             continue;
-  //           } else {
-  //             console.log("[x, z] => ", x, z);
-  //             if (testGrid[x][z] === ALIVE) {
-  //               liveCellNeighbours++;
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-
-  //   if (testGrid[i][j] === ALIVE) {
-  //     if (liveCellNeighbours < 2) {
-  //       cellFutureStatus = DEAD;
-  //     } else if (liveCellNeighbours > 3) {
-  //       cellFutureStatus = DEAD;
-  //     } else if (liveCellNeighbours === 2 || liveCellNeighbours === 3) {
-  //       cellFutureStatus = ALIVE;
-  //     }
-  //   } else if (testGrid[i][j] === DEAD) {
-  //     if (liveCellNeighbours === 3) {
-  //       cellFutureStatus = ALIVE;
-  //     }
-  //   }
-
-  //   return cellFutureStatus;
-  // };
-
-  const renderGrid = () => {
     const { grid } = life;
     const newGrid = [...grid];
     const rowLength = grid.length;
     const columnLength = grid[0].length;
 
-    // let content;
+    let tempStatus = undefined;
+
+    let output = [];
 
     for (let i = 0; i < rowLength; i++) {
+      let tempRow = [];
       for (let j = 0; j < columnLength; j++) {
         console.log("\n\n[i, j] => ", i, j);
 
-        newGrid[i][j] = testFunction(newGrid, [`${i}`, `${j}`]);
-        //  content = newGrid[i][j];
-        //  console.log("content => ", i, j, content);
+        tempStatus = matrixProcessor(newGrid, i, j);
+        console.log("[i, j] UPDATED => ", matrixProcessor(newGrid, i, j));
+        tempRow.push(tempStatus);
+      }
+      output.push(tempRow);
+    }
+
+    console.log("newGrid UPDATED => ", output);
+
+    const newLife = {
+      ...life,
+      grid: output,
+      generation: life.generation + 1,
+    };
+    setLife(newLife);
+  };
+
+  const resetLife = () => {
+    setLife(initialLife);
+  };
+
+  // --------------- liveCellChecker Function ----------------
+  const liveCellChecker = (matrix, rowLength, columnLength, cellX, cellY) => {
+    const newMatrix = [...matrix];
+    const newMatrixRowLength = rowLength;
+    const newMatrixColumnLength = columnLength;
+
+    const v = cellX;
+    const w = cellY;
+
+    let counter = 0;
+
+    for (let k = 0; k < newMatrixRowLength; k++) {
+      for (let l = 0; l < newMatrixColumnLength; l++) {
+        if (k === v && l === w) {
+          // skip the cell
+          continue;
+        }
+        if (newMatrix[k][l] === ALIVE) {
+          counter++;
+        }
       }
     }
 
-    console.log("newGrid => ", newGrid);
-
-    // const newLife = {
-    //   ...life,
-    //   grid: newGrid,
-    //   generation: life.generation + 1,
-    // };
-    // console.log("grid => ", grid);
-    // console.log("newGrid => ", newLife.grid);
-    // console.log("newLife => ", newLife);
-    // setLife(newLife);
+    return counter;
   };
 
-  // console.log("THIS IS THE NEW GRID => ", life.grid);
-
-  // ----------------------- TEST FUNCTION ---------------
-  const testFunction = (matrix, cellPosition) => {
-    const [i, j] = cellPosition;
+  // ------------------ matrixProcessor Function -----------------
+  const matrixProcessor = (matrix, posX, posY) => {
+    // const [i, j] = cellPosition;
+    const i = posX;
+    const j = posY;
     const testMatrix = [...matrix];
     let dummyMatrix = [
       ["$", "$", "$"],
       ["$", "$", "$"],
       ["$", "$", "$"],
     ];
-    // let newMatrixRowLength = 3;
-    // let newMatrixColumnLength = 3;
     let newMatrix = [];
     let testCellPosition = [];
 
@@ -174,8 +155,6 @@ function App() {
         dummyMatrix[firstDummyRowIndex][lastDummyColumnIndex] === "$" &&
         dummyMatrix[lastDummyRowIndex][lastDummyColumnIndex] === "$"
       ) {
-        // newMatrixRowLength = 2
-        // newMatrixColumnLength = 2
         newMatrix.push([dummyMatrix[1][0], dummyMatrix[1][1]]);
         newMatrix.push([dummyMatrix[2][0], dummyMatrix[2][1]]);
         testCellPosition = [0, 1];
@@ -185,15 +164,12 @@ function App() {
         dummyMatrix[firstDummyRowIndex][firstDummyColumnIndex] === "$" &&
         dummyMatrix[lastDummyRowIndex][firstDummyColumnIndex] === "$"
       ) {
-        // newMatrixRowLength = 2
-        // newMatrixColumnLength = 2
         newMatrix.push([dummyMatrix[1][1], dummyMatrix[1][2]]);
         newMatrix.push([dummyMatrix[2][1], dummyMatrix[2][2]]);
         testCellPosition = [0, 0];
       }
       // A [[ $, $, $ ],[ *, *, * ],[ *, *, * ]]
       else {
-        // newMatrixRowLength = 2;
         newMatrix.push([...dummyMatrix[1]]);
         newMatrix.push([...dummyMatrix[2]]);
         testCellPosition = [0, 1];
@@ -226,7 +202,6 @@ function App() {
 
       // C [[ *, *, * ],[ *, *, * ],[ $, $, $ ]]
       else {
-        // newMatrixRowLength = 2;
         newMatrix.push([...dummyMatrix[0]]);
         newMatrix.push([...dummyMatrix[1]]);
         testCellPosition = [1, 1];
@@ -265,47 +240,31 @@ function App() {
     const newMatrixRowLength = newMatrix.length;
     const newMatrixColumnLength = newMatrix[0].length;
 
-    // console.log("newMatrixRowLength => ", newMatrixRowLength);
-    // console.log("newMatrixColumnLength => ", newMatrixColumnLength);
-
     if (newMatrix[v][w] === DEAD) {
       if (newMatrixRowLength < 3) {
         if (newMatrixColumnLength < 3) {
-          // newMatrixRowLength = 2
-          // newMatrixColumnLength = 2
-          let aliveCounter = 0;
-          console.log("aliveCounter ??? => ", aliveCounter);
+          let aliveCounter = liveCellChecker(
+            newMatrix,
+            newMatrixRowLength,
+            newMatrixColumnLength,
+            v,
+            w
+          );
 
-          for (let i = 0; i < newMatrixRowLength; i++) {
-            for (let j = 0; j < newMatrixColumnLength; j++) {
-              if (i === v && j === w) {
-                // skip the cell
-                continue;
-              }
-              if (newMatrix[i][j] === ALIVE) {
-                aliveCounter++;
-              }
-            }
-          }
           if (aliveCounter === 3) {
             cellStatus = ALIVE;
           } else {
             cellStatus = DEAD;
           }
         } else if (newMatrixColumnLength === 3) {
-          let aliveCounter = 0;
+          let aliveCounter = liveCellChecker(
+            newMatrix,
+            newMatrixRowLength,
+            newMatrixColumnLength,
+            v,
+            w
+          );
 
-          for (let i = 0; i < newMatrixRowLength; i++) {
-            for (let j = 0; j < newMatrixColumnLength; j++) {
-              if (i === v && j === w) {
-                // skip the cell
-                continue;
-              }
-              if (newMatrix[i][j] === ALIVE) {
-                aliveCounter++;
-              }
-            }
-          }
           if (aliveCounter === 3) {
             cellStatus = ALIVE;
           } else {
@@ -314,20 +273,13 @@ function App() {
         }
       } else if (newMatrixRowLength === 3) {
         if (newMatrixColumnLength < 3) {
-          let aliveCounter = 0;
-          // let miniMatrix = [];
-
-          for (let i = 0; i < newMatrixRowLength; i++) {
-            for (let j = 0; j < newMatrixColumnLength; j++) {
-              if (i === v && j === w) {
-                // skip the cell
-                continue;
-              }
-              if (newMatrix[i][j] === ALIVE) {
-                aliveCounter++;
-              }
-            }
-          }
+          let aliveCounter = liveCellChecker(
+            newMatrix,
+            newMatrixRowLength,
+            newMatrixColumnLength,
+            v,
+            w
+          );
 
           if (aliveCounter === 3) {
             cellStatus = ALIVE;
@@ -335,20 +287,13 @@ function App() {
             cellStatus = DEAD;
           }
         } else if (newMatrixColumnLength === 3) {
-          let aliveCounter = 0;
-          // let miniMatrix = [];
-
-          for (let i = 0; i < newMatrixRowLength; i++) {
-            for (let j = 0; j < newMatrixColumnLength; j++) {
-              if (i === v && j === w) {
-                // skip the cell
-                continue;
-              }
-              if (newMatrix[i][j] === ALIVE) {
-                aliveCounter++;
-              }
-            }
-          }
+          let aliveCounter = liveCellChecker(
+            newMatrix,
+            newMatrixRowLength,
+            newMatrixColumnLength,
+            v,
+            w
+          );
 
           if (aliveCounter === 3) {
             cellStatus = ALIVE;
@@ -357,71 +302,33 @@ function App() {
           }
         }
       }
-      // const newLife = {
-      //   ...life,
-      //   grid: testMatrix,
-      //   generation: life.generation + 1
-      // }
 
       // setLife(newLife)
     } else if (newMatrix[v][w] === ALIVE) {
       if (newMatrixRowLength < 3) {
         if (newMatrixColumnLength < 3) {
-          let aliveCounter = 0;
-
-          for (let i = 0; i < newMatrixRowLength; i++) {
-            for (let j = 0; j < newMatrixColumnLength; j++) {
-              if (i === v && j === w) {
-                // skip the cell
-                continue;
-              }
-              if (newMatrix[i][j] === ALIVE) {
-                aliveCounter++;
-              }
-            }
-            if (aliveCounter < 2) {
-              cellStatus = DEAD;
-            } else if (aliveCounter === 2 || aliveCounter === 3) {
-              cellStatus = ALIVE;
-            } else if (aliveCounter > 3) {
-              cellStatus = DEAD;
-            }
+          let aliveCounter = liveCellChecker(
+            newMatrix,
+            newMatrixRowLength,
+            newMatrixColumnLength,
+            v,
+            w
+          );
+          if (aliveCounter < 2) {
+            cellStatus = DEAD;
+          } else if (aliveCounter === 2 || aliveCounter === 3) {
+            cellStatus = ALIVE;
+          } else if (aliveCounter > 3) {
+            cellStatus = DEAD;
           }
         } else if (newMatrixColumnLength === 3) {
-          let aliveCounter = 0;
-
-          for (let i = 0; i < newMatrixRowLength; i++) {
-            for (let j = 0; j < newMatrixColumnLength; j++) {
-              if (i === v && j === w) {
-                // skip the cell
-                continue;
-              }
-              if (newMatrix[i][j] === ALIVE) {
-                aliveCounter++;
-              }
-            }
-            if (aliveCounter < 2) {
-              cellStatus = DEAD;
-            } else if (aliveCounter === 2 || aliveCounter === 3) {
-              cellStatus = ALIVE;
-            } else if (aliveCounter > 3) {
-              cellStatus = DEAD;
-            }
-          }
-        }
-      } else if (newMatrixRowLength === 3 && newMatrixRowLength === 3) {
-        let aliveCounter = 0;
-
-        for (let i = 0; i < newMatrixRowLength; i++) {
-          for (let j = 0; j < newMatrixColumnLength; j++) {
-            if (i === v && j === w) {
-              // skip the cell
-              continue;
-            }
-            if (newMatrix[i][j] === ALIVE) {
-              aliveCounter++;
-            }
-          }
+          let aliveCounter = liveCellChecker(
+            newMatrix,
+            newMatrixRowLength,
+            newMatrixColumnLength,
+            v,
+            w
+          );
           if (aliveCounter < 2) {
             cellStatus = DEAD;
           } else if (aliveCounter === 2 || aliveCounter === 3) {
@@ -430,18 +337,27 @@ function App() {
             cellStatus = DEAD;
           }
         }
+      } else if (newMatrixRowLength === 3 && newMatrixRowLength === 3) {
+        let aliveCounter = liveCellChecker(
+          newMatrix,
+          newMatrixRowLength,
+          newMatrixColumnLength,
+          v,
+          w
+        );
+        if (aliveCounter < 2) {
+          cellStatus = DEAD;
+        } else if (aliveCounter === 2 || aliveCounter === 3) {
+          cellStatus = ALIVE;
+        } else if (aliveCounter > 3) {
+          cellStatus = DEAD;
+        }
       }
     }
-
-    console.log("\n\n[i, j] => ", i, j, testMatrix[i][j]);
-    console.log("dummyMatrix => ", dummyMatrix);
-    console.log("newMatrix => ", newMatrix);
-    console.log("testCellPosition => ", testCellPosition);
-    console.log("CELL STATUS => ", cellStatus);
-    console.log("the new matrix is => ", life.grid);
-
-    // return cellStatus;
+    return cellStatus;
   };
+
+  console.log("life newMatrix => ", life.grid);
 
   return (
     <div className="App ">
@@ -454,14 +370,6 @@ function App() {
           <span>{life.grid.length} &nbsp; &nbsp;</span>
           <span>{life.grid[0].length}</span>
           {displayGrid()}
-          {testFunction(life.grid, [1, 0])}
-          {testFunction(life.grid, [1, 1])}
-          {testFunction(life.grid, [1, 2])}
-          {testFunction(life.grid, [1, 3])}
-          {testFunction(life.grid, [1, 4])}
-          {testFunction(life.grid, [1, 5])}
-          {testFunction(life.grid, [1, 6])}
-          {testFunction(life.grid, [1, 7])}
           <br />
           <br />
           <br />
