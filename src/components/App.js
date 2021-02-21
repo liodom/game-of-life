@@ -1,39 +1,97 @@
-import "./App.css";
-import { useState } from "react";
+import "../App.css";
+import { useState, useEffect } from "react";
 import Cell from "./Cell";
-import { ALIVE, DEAD } from "./status";
+import { ALIVE, DEAD } from "../status";
 // import { initialLife as lifeSeed } from "./initialLife.js";
 import raw from "raw.macro";
 import styled from "styled-components";
 import __ from "lodash";
+import NewGridModal from "./NewGridModal";
+import { connect } from "react-redux";
 
-function App() {
+function App(props) {
   // const initialLife = { ...lifeSeed };
-  // const initialLife = {
-  //   generation: 3,
-  //   grid: [
-  //     [".", ".", ".", ".", ".", ".", ".", "."],
-  //     [".", ".", ".", ".", "*", ".", ".", "."],
-  //     [".", ".", ".", "*", "*", ".", ".", "."],
-  //     [".", ".", ".", ".", ".", ".", ".", "."],
-  //   ],
-  // };
   const initialLife = {
     generation: 3,
     grid: [
-      [".", "*", ".", ".", ".", ".", ".", "."],
-      ["*", "*", "*", ".", "*", "*", "*", "*"],
-      [".", "*", ".", "*", ".", ".", "*", "*"],
-      [".", "*", ".", "*", ".", ".", "*", "."],
+      [".", ".", ".", ".", ".", ".", ".", "."],
+      [".", ".", ".", ".", "*", ".", ".", "."],
+      [".", ".", ".", "*", "*", ".", ".", "."],
+      [".", ".", ".", ".", ".", ".", ".", "."],
     ],
-    isStartButtonActive: true,
+    isLifeCompleted: false,
     isResultReady: false,
+    isStartButtonActive: true,
+    showModal: false,
   };
+  // const initialLife = {
+  //   generation: 3,
+  //   grid: [
+  //     [".", "*", ".", ".", ".", ".", ".", "."],
+  //     ["*", "*", "*", ".", "*", "*", "*", "*"],
+  //     [".", "*", ".", "*", ".", ".", "*", "*"],
+  //     [".", "*", ".", "*", ".", ".", "*", "."],
+  //   ],
+  //   isStartButtonActive: true,
+  //   isResultReady: false,
+  //   isLifeCompleted: false,
+  //   showModal: false,
+  // };
 
   const [life, setLife] = useState(initialLife);
 
+  useEffect(() => {
+    const { numberOfColumns, numberOfRows } = props.userGrid;
+    if (numberOfColumns !== 0 && numberOfRows !== 0) {
+      let randomGrid = [];
+
+      for (let i = 0; i < numberOfRows; i++) {
+        let output = [];
+        for (let j = 0; j < numberOfColumns; j++) {
+          console.log("[i, j] => ", i, j);
+          output.push(Math.random(1) * 10 < 5 ? ALIVE : DEAD);
+          // output.push("%");
+        }
+        randomGrid.push(output);
+      }
+
+      setLife({
+        ...life,
+        generation: 0,
+        grid: randomGrid,
+        isLifeCompleted: false,
+        isResultReady: false,
+        isStartButtonActive: true,
+        showModal: false,
+      });
+
+      console.log("RANDOM GRID => ", randomGrid);
+    }
+  }, [props.userGrid]);
+
+  const createNewGridHandler = () => {
+    // const { numberOfColumns, numberOfRows } = props.userGrid;
+    // const randomGrid = [...life.grid];
+
+    // for (let i = 0; i < numberOfRows; i++) {
+    //   for (let j = 0; j < numberOfColumns; j++) {
+    //     console.log("[i, j] => ", i, j);
+    //     randomGrid[i][j] = Math.random(1) * 10 < 5 ? ALIVE : DEAD;
+    //   }
+    // }
+    // console.log("RANDOM GRID => ", randomGrid);
+
+    // if user has selected the number of rows and columns, and randomGrid was computed, update the state of life
+    // and close the modal
+    // if (numberOfColumns !== 0 || numberOfRows !== 0) {
+    //   alert("IT IS TIME TO CREATE A NEW GRID");
+    // }
+    setLife({ ...life, showModal: true });
+  };
+
+  const closeModal = () => setLife({ ...life, showModal: false });
   const printRawData = () => {
-    const content = raw("./gameOfLifeConfig.txt");
+    const content = raw("../gameOfLifeConfig.txt");
     // console.log("raw content => ", content);
   };
 
@@ -110,6 +168,7 @@ function App() {
           ...life,
           isStartButtonActive: false,
           isResultReady: true,
+          isLifeCompleted: true,
         });
       }
     }
@@ -423,12 +482,21 @@ function App() {
     margin-bottom: 30px;
   `;
 
+  console.log("isLifeCompleted => ", life.isLifeCompleted);
+  console.log("PROPS => ", props);
+  console.log("showModal => ", life.showModal);
+
   return (
     <div className="App ">
+      {/* <LifeCompletedModal isLifeCompleted={life.isLifeCompleted} /> */}
+      <NewGridModal showModal={life.showModal} closeModal={closeModal} />
       <div className="fluid">
         <div className="game-container">
           <div className={`generation ${result}`}>
-            Generation: <code>{life.generation}</code>
+            {/* Generation: <code>{life.generation}</code> */}
+            {life.isLifeCompleted
+              ? `Life was completed at Generation: ${life.generation}`
+              : `Generation: ${life.generation}`}
           </div>
           <div className="grid-size">
             <div className="row-length">{life.grid.length}</div>
@@ -453,6 +521,9 @@ function App() {
             >
               Reset Life
             </ButtonStyled>
+            <ButtonStyled onClick={createNewGridHandler}>
+              Generate Random Grid
+            </ButtonStyled>
           </div>
         </div>
       </div>
@@ -460,4 +531,11 @@ function App() {
   );
 }
 
-export default App;
+const mapStateToProps = (state) => {
+  console.log("REDUCER STATE => ", state);
+  return {
+    userGrid: state.userGrid,
+  };
+};
+
+export default connect(mapStateToProps, null)(App);

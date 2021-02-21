@@ -1,0 +1,1 @@
+export const GENERATE_GRID = "GENERATE_GRID";
