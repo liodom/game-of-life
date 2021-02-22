@@ -24,19 +24,6 @@ function App(props) {
     isStartButtonActive: true,
     showModal: false,
   };
-  // const initialLife = {
-  //   generation: 3,
-  //   grid: [
-  //     [".", "*", ".", ".", ".", ".", ".", "."],
-  //     ["*", "*", "*", ".", "*", "*", "*", "*"],
-  //     [".", "*", ".", "*", ".", ".", "*", "*"],
-  //     [".", "*", ".", "*", ".", ".", "*", "."],
-  //   ],
-  //   isStartButtonActive: true,
-  //   isResultReady: false,
-  //   isLifeCompleted: false,
-  //   showModal: false,
-  // };
 
   const [life, setLife] = useState(initialLife);
 
@@ -48,9 +35,7 @@ function App(props) {
       for (let i = 0; i < numberOfRows; i++) {
         let output = [];
         for (let j = 0; j < numberOfColumns; j++) {
-          console.log("[i, j] => ", i, j);
           output.push(Math.random(1) * 10 < 5 ? ALIVE : DEAD);
-          // output.push("%");
         }
         randomGrid.push(output);
       }
@@ -64,36 +49,18 @@ function App(props) {
         isStartButtonActive: true,
         showModal: false,
       });
-
-      console.log("RANDOM GRID => ", randomGrid);
     }
   }, [props.userGrid]);
 
   const createNewGridHandler = () => {
-    // const { numberOfColumns, numberOfRows } = props.userGrid;
-    // const randomGrid = [...life.grid];
-
-    // for (let i = 0; i < numberOfRows; i++) {
-    //   for (let j = 0; j < numberOfColumns; j++) {
-    //     console.log("[i, j] => ", i, j);
-    //     randomGrid[i][j] = Math.random(1) * 10 < 5 ? ALIVE : DEAD;
-    //   }
-    // }
-    // console.log("RANDOM GRID => ", randomGrid);
-
-    // if user has selected the number of rows and columns, and randomGrid was computed, update the state of life
-    // and close the modal
-    // if (numberOfColumns !== 0 || numberOfRows !== 0) {
-    //   alert("IT IS TIME TO CREATE A NEW GRID");
-    // }
     setLife({ ...life, showModal: true });
   };
 
   const closeModal = () => setLife({ ...life, showModal: false });
-  const printRawData = () => {
-    const content = raw("../gameOfLifeConfig.txt");
-    // console.log("raw content => ", content);
-  };
+
+  // const printRawData = () => {
+  //   const content = raw("../gameOfLifeConfig.txt");
+  // };
 
   const displayGrid = () => {
     return life.grid.map((row) => (
@@ -111,7 +78,7 @@ function App(props) {
   };
 
   const startLife = () => {
-    printRawData();
+    // printRawData();
     const { grid } = life;
     const newGrid = [...grid];
     const rowLength = grid.length;
@@ -121,26 +88,16 @@ function App(props) {
 
     let outputGrid = [];
 
-    console.log("isButtonActive => ", life.isStartButtonActive);
     // is Button active ?
     if (life.isStartButtonActive) {
       for (let i = 0; i < rowLength; i++) {
         let tempRow = [];
         for (let j = 0; j < columnLength; j++) {
-          console.log("\n\n[i, j] => ", i, j);
-
           tempStatus = matrixProcessor(newGrid, i, j);
-
-          console.log("tempStatus => ", tempStatus);
-
-          console.log("[i, j] UPDATED => ", matrixProcessor(newGrid, i, j));
-
           tempRow.push(tempStatus);
         }
         outputGrid.push(tempRow);
       }
-
-      console.log("newGrid UPDATED => ", outputGrid);
 
       const newLife = {
         ...life,
@@ -149,7 +106,7 @@ function App(props) {
       };
       setLife(newLife);
 
-      // if no cellStatus, disactivate Start Button
+      // if no cellStatus is received, disactivate Start Button
       let comparisonCounter = 0;
       for (let n = 0; n < rowLength; n++) {
         let rowCompareCounter = 0;
@@ -206,7 +163,6 @@ function App(props) {
 
   // ------------------ matrixProcessor Function -----------------
   const matrixProcessor = (matrix, posX, posY) => {
-    // const [i, j] = cellPosition;
     const i = posX;
     const j = posY;
     const testMatrix = [...matrix];
@@ -395,8 +351,6 @@ function App(props) {
           }
         }
       }
-
-      // setLife(newLife)
     } else if (newMatrix[v][w] === ALIVE) {
       if (newMatrixRowLength < 3) {
         if (newMatrixColumnLength < 3) {
@@ -450,50 +404,47 @@ function App(props) {
     return cellStatus;
   };
 
-  // -------------------- Classes -----------------
+  // --------------- Conditional Classes ---------------
   const result = life.isResultReady ? "result" : "";
-  const faded = life.isResultReady ? "faded" : "";
 
-  // ----------- Styled Components ------------------
+  // -------------- Styled Components -----------------
   const ButtonStyled = styled.button`
     background-color: rgb(248, 255, 206);
     box-shadow: 2px 10px 10px 0px grey;
-    padding: 10px 40px;
-    margin: 30px 20px;
+    padding: 10px 30px;
+    margin: 20px 20px;
+    margin-bottom: 10px;
+    font-family: Arial Narrow, sans-serif;
     font-size: 20px;
     border:none;
     border-radius: 15px;
     outline: none;
     cursor: ${(props) => (props.pointer ? "pointer" : "")}
     color: ${(props) => (props.start ? "green" : "red")};
-    ${(props) =>
-      props.shouldHover
-        ? "&:hover {background-color: #0071c5; color: white }"
-        : "white"}
-    }
+    ${(props) => (props.shouldHover ? "&:hover {cursor: pointer }" : "")}
+    
     ${(props) =>
       props.cliccable
-        ? "&:active {box-shadow: 1px 1px 10px 0px grey; transform: translateY(4px); transition-duration: 200; color: white}"
+        ? "&:active {box-shadow: 1px 1px 10px 0px grey; transform: translateY(4px); transition-duration: 200; color: black}"
         : ""}
-    ${(props) => (props.resetColor ? "{background: orange; color: white}" : "")}
+    ${(props) =>
+      props.resetColor ? "{background: #C04000; color: white}" : ""}
     ${(props) => (props.show ? "{background: gray; }" : "")}
+    ${(props) =>
+      props.nextGenerationColor ? "{background: green; color: white}" : ""}
   `;
+
+  // grid style
   const DisplayStyled = styled.section`
     margin-bottom: 30px;
   `;
 
-  console.log("isLifeCompleted => ", life.isLifeCompleted);
-  console.log("PROPS => ", props);
-  console.log("showModal => ", life.showModal);
-
   return (
     <div className="App ">
-      {/* <LifeCompletedModal isLifeCompleted={life.isLifeCompleted} /> */}
       <NewGridModal showModal={life.showModal} closeModal={closeModal} />
       <div className="fluid">
         <div className="game-container">
           <div className={`generation ${result}`}>
-            {/* Generation: <code>{life.generation}</code> */}
             {life.isLifeCompleted
               ? `Life was completed at Generation: ${life.generation}`
               : `Generation: ${life.generation}`}
@@ -507,21 +458,23 @@ function App(props) {
             <ButtonStyled
               onClick={() => startLife()}
               start
-              shouldHover
               cliccable
               pointer
+              nextGenerationColor
+              shouldHover
             >
-              Start Life
+              Go to the next generation
             </ButtonStyled>
             <ButtonStyled
               onClick={() => resetLife()}
               cliccable
               reset
               resetColor
+              shouldHover
             >
               Reset Life
             </ButtonStyled>
-            <ButtonStyled onClick={createNewGridHandler}>
+            <ButtonStyled onClick={createNewGridHandler} shouldHover>
               Generate Random Grid
             </ButtonStyled>
           </div>
@@ -532,7 +485,6 @@ function App(props) {
 }
 
 const mapStateToProps = (state) => {
-  console.log("REDUCER STATE => ", state);
   return {
     userGrid: state.userGrid,
   };
