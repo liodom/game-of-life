@@ -432,6 +432,10 @@ function App(props) {
     ${(props) => (props.show ? "{background: gray; }" : "")}
     ${(props) =>
       props.nextGenerationColor ? "{background: green; color: white}" : ""}
+      ${(props) =>
+        props.disabled
+          ? "{background-color: grey; color: lightgrey; box-shadow: 0px 0px 0px 0px grey}"
+          : null}
   `;
 
   // grid style
@@ -462,6 +466,7 @@ function App(props) {
               pointer
               nextGenerationColor
               shouldHover
+              disabled={life.isLifeCompleted}
             >
               Go to the next generation
             </ButtonStyled>

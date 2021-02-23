@@ -74,7 +74,7 @@ const StyledText = styled.div`
 const NewGridModal = (props) => {
   const [rowValue, setRowValue] = useState(0);
   const [columnValue, setColumnValue] = useState(0);
-  const [grid, setGrid] = useState({});
+  // const [grid, setGrid] = useState({ rowValue: 0, columnValue: 0 });
 
   console.log("NEW GRID MODAL PROPS => ", props);
 
@@ -96,22 +96,26 @@ const NewGridModal = (props) => {
 
     if (rowValue !== 0 && columnValue !== 0) {
       // compose the grid from rows and columns
-      const gridSeed = { numberOfRows: rowValue, numberOfColumns: columnValue };
+      const grid = { numberOfRows: rowValue, numberOfColumns: columnValue };
 
       // dispatch the action to the reducer
-      props.generateGrid(gridSeed);
+      props.generateGrid(grid);
     } else if (rowValue === 0) {
+      setColumnValue(0);
       message =
         message + "\nThe number of rows must be greater than or equal to 2!";
       if (columnValue === 0) {
+        setRowValue(0);
         message =
           message +
           "\nThe number of columns must be greater than or equal to 2!";
       }
     } else if (columnValue === 0) {
+      setRowValue(0);
       message =
         message + "\nThe number of columns must be greater than or equal to 2!";
       if (rowValue === 0) {
+        setColumnValue(0);
         message =
           message + "\nThe number of rows must be greater than or equal to 2!";
       }
@@ -124,9 +128,9 @@ const NewGridModal = (props) => {
     props.closeModal();
   };
 
-  console.log("new columnValue is => ", columnValue);
-  console.log("new rowValue is => ", rowValue);
-  console.log("GRID => ", grid);
+  // console.log("new columnValue is => ", columnValue);
+  // console.log("new rowValue is => ", rowValue);
+  // console.log("GRID => ", grid);
 
   if (props.showModal) {
     return (
